@@ -1,90 +1,74 @@
 import QtQuick
-import QtQuick.Layouts
-import QtQuick.Controls.Basic
+import QtQuick.Controls
 
-
-ApplicationWindow {
-    id: window
+Window {
     width: 640
     height: 480
-    minimumWidth: 200
-    minimumHeight: 250
     visible: true
-    title: qsTr("Hello World")
-    property bool lightMode: Application.styleHints.colorScheme === Qt.Light
-    property color reallyDark: "#1f1f1f"
-    property color dark: "#262626"
-    property color reallyLight: "#e7e7e7"
-    property color light: "#e0e0e0"
+    title: "惠州工控 - 第一战役"
 
-    GridLayout {
-        id: grid
-        columns: width < 400 ? 1 : 2
-        rowSpacing: 0
-        columnSpacing: 0
-        anchors.fill: parent
+    // 在屏幕正中间画一个按钮
+    Column {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 20
+        spacing: 20//两个按钮之间的间距
 
-        Rectangle {
-            id: rectangle1
-            color: window.lightMode ? window.reallyLight : window.reallyDark
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+        Button{
+            text: "点击我！存入一条故障记录"
+            width: 250
+            height: 60
+            font.pixelSize: 18
 
-            ColumnLayout {
-                anchors.fill: parent
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-
-                Label {
-                    id: text1
-                    color: window.lightMode ? window.dark : window.light
-                    font.pixelSize: 120
-                    fontSizeMode: Text.Fit
-                    text: qsTr("Hello World")
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.margins: 16
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
+            // 点击事件：一旦被按下，就执行大括号里的逻辑
+            onClicked: {
+                // 直接呼叫刚才在 main.cpp 里定好的暗号 "myDb"
+                // 并调用图纸上标了 Q_INVOKABLE 的那个对外服务窗口！
+                myDb.saveRecord("危险！1号机械臂温度过高：85℃")
             }
         }
 
-        Rectangle {
-            id: rectangle2
-            color: window.lightMode ? window.light : window.dark
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+        Button{
+            text: "2.调取所有历史档案"
+            width:250
+            height: 60
+            font.pixelSize: 18
 
-            ColumnLayout {
-                anchors.fill: parent
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-
-                Button {
-                    id: button1
-                    text: window.lightMode ? qsTr("\u263D  Dark mode")
-                                           : qsTr("\u263C  Light mode")
-                    Layout.bottomMargin: 16
-                    Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-
-                    contentItem: Text {
-                        text: button1.text
-                        color: window.lightMode ? window.light : window.dark
-                        font: button1.font
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    background: Rectangle {
-                        implicitWidth: 120
-                        implicitHeight: 36
-                        radius: 8
-                        color: window.lightMode ? window.dark : window.light
-                    }
-
-                    onClicked: window.lightMode = !window.lightMode
-                }
+            onClicked: {
+                historyList.model=myDb.getAllRecords()
             }
+
         }
     }
+
+    Rectangle{
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width:320
+        color:"#2b2b2b"//工业风深灰底色
+
+        ListView{
+            id:historyList
+            anchors.fill: parent
+            anchors.margins: 15
+            clip:true
+            spacing: 5
+
+            delegate: Text{
+                text: "."+modelData
+                color:"#00FF00"
+                font.pixelSize:15
+
+            }
+
+
+        }
+
+
+    }
+
+
+
 
 }
